@@ -96,20 +96,91 @@ class DataSetPreprocess:
 
 		return df
 
+	def abs(self, df):
+		if not isinstance(df, pd.core.frame.DataFrame):
+			return None
+
+		return df.abs()
+
+
+def plot():
+	names = ["vibration_1", "vibration_2", "vibration_3", "current"]
+	# filename = '../../datas/01-TrainingData-qLua/01/Sensor/1.csv'
+	filename = 'plc-01_dataset.csv'
+	df = pd.read_csv(filename, sep=',')
+	data_processor = DataSetPreprocess(filename)
+	df = data_processor.deduplication(df, names)
+	print(len(df))
+
+	#df = DataFrame(columns=names)
+
+	'''
+	for i in range(1, 49):
+		filename = '../../datas/01-TrainingData-qLua/01/Sensor/' + str(i) + '.csv'
+		print(filename)
+		data_processor = DataSetPreprocess(filename)
+
+		sensor_df = data_processor.loadDataSet(columns=names)
+		sensor_df = data_processor.abs(sensor_df)
+		df = df.append(sensor_df)
+		print(len(df))
+	'''
+
+	time_lst = [i for i in range(0, len(df))]
+	# vibration_1_lst = np.array(df['vibration_1'])
+	# vibration_2_lst = np.array(df['vibration_2'])
+	# vibration_3_lst = np.array(df['vibration_3'])
+	vibration_1_lst = []
+	vibration_2_lst = []
+	vibration_3_lst = []
+	current_lst = np.array(df['current'])
+
+	return df, time_lst, vibration_1_lst, vibration_2_lst, vibration_3_lst, current_lst
 
 
 if __name__ == '__main__':
-	arr = np.array([
-		[1,1,1],
-		[2,3,4],
-		[1,1,1],
-		[2,2,2],
-		[2,3,4]
-	])
+	'''
+	filename = '../../datas/01-TrainingData-qLua/01/PLC/plc.csv'
 
-	df = DataFrame(arr, columns=['a', 'b', 'c'])
-	print(df)
-	print(type(df))
-	dsp = DataSetPreprocess("")
-	df = dsp.deduplication(df, ['a', 'b', 'c'])
-	print(df)
+	data_processor = DataSetPreprocess(filename)
+	names = ['time', 'spindle_load', 'x', 'y', 'z', 'csv_no']
+	duplicate_names = names[1:len(names)-1:]
+	print(duplicate_names)
+	plc_df = data_processor.loadDataSet(columns=names)
+
+	df_new = plc_df.drop(["csv_no"], axis=1)
+
+	df_new = data_processor.deduplication(df_new, columns=duplicate_names)
+	print("-->plc_df: ", len(plc_df))
+	print("-->df_new: ", len(df_new))
+
+	spindle_load_set = set(plc_df['spindle_load'])
+	x_set = set(plc_df['x'])
+	y_set = set(plc_df['y'])
+	z_set = set(plc_df['z'])
+	print('spindle_load_set: ', len(spindle_load_set))
+	print('x_set: ', len(x_set))
+	print('y_set: ', len(y_set))
+	print('z_set: ', len(z_set))
+	'''
+
+	df, time_lst, vibration_1_lst, vibration_2_lst, vibration_3_lst, current_lst = plot()
+
+	plt.title('Data set parameter analysis')
+
+	print(len(time_lst))
+	print(len(df))
+
+	import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
+	dgp = datasetGraphPlot.GraphPlot()
+	# dgp.addSubPlot(time_lst, 'time(ms)', vibration_1_lst, 'vibration_1', 'green', 2, 2, 1)
+	# dgp.addSubPlot(time_lst, 'time(ms)', vibration_2_lst, 'vibration_2', 'red', 2, 2, 2)
+	# dgp.addSubPlot(time_lst, 'time(ms)', vibration_3_lst, 'vibration_3', 'skyblue', 2, 2, 3)
+	# dgp.addSubPlot(time_lst, 'time(ms)', current_lst, 'current_lst', 'blue', 2, 2, 1)
+
+	plt.scatter(time_lst, current_lst, marker='.')
+	plt.xlabel("time(ms)")
+	plt.ylabel("current")
+	plt.show()
+
+	# dgp.showSubplot()

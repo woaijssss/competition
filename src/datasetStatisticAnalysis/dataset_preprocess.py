@@ -85,47 +85,31 @@ class DataSetPreprocess:
 	def minus(self, d1, d2):
 		return d2-d1
 
-if __name__ == '__main__':
-	pass
-# # print(plc_df.tail(10))
-#
-# df = DataFrame()
-#
-# ret = detectInvalidValue(plc_df)
-# df_new = truncStruct(plc_df)
-# print(len(df_new))
-# df_new.to_csv('../datas/test/plc_new.csv', columns=names, index=False)
+	'''
+		数据去重
+	'''
+	def deduplication(self, df, columns=[]):
+		if not isinstance(df, pd.core.frame.DataFrame):
+			return None
 
-# csv_no_set = set(plc_df['csv_no'])
-# for number in csv_no_set:		# 取出每一个csv_no号做截取
-# 	if number > 4:
-# 		break
-# 	df_new = DataSetPreprocess.truncStruct(plc_df, number)
-# 	time_lst = list(df_new['time'])
-# 	sl_lst = list(df_new['spindle_load'])
-# 	x_lst = list(df_new['x'])
-# 	y_lst = list(df_new['y'])
-# 	z_lst = list(df_new['z'])
-#
-# 	sum = 0.0
-# 	time_new_lst = [0.0]  # 原点
-# 	for i in range(1, len(time_lst)):
-# 		diff = calTimeDiff(time_lst[i - 1], time_lst[i])
-# 		sum += diff
-# 		time_new_lst.append(sum)
-#
-# 	print(sum)
-#
-# 	print(len(time_new_lst))
-# 	print(len(sl_lst))
-#
-# 	plt.title('Data set parameter analysis')
-# 	plt.plot(time_new_lst, sl_lst, color='green', label='spindle_load')
-# 	plt.plot(time_new_lst, x_lst, color='red', label='x')
-# 	plt.plot(time_new_lst, y_lst, color='skyblue', label='y')
-# 	plt.plot(time_new_lst, z_lst, color='blue', label='z')
-# 	plt.legend()  # 显示图例
-#
-# 	plt.xlabel('time(ms)')
-# 	plt.ylabel('values')
-# 	plt.show()
+		df = df.drop_duplicates(subset=columns, keep="first", inplace=False)
+
+		return df
+
+
+
+if __name__ == '__main__':
+	arr = np.array([
+		[1,1,1],
+		[2,3,4],
+		[1,1,1],
+		[2,2,2],
+		[2,3,4]
+	])
+
+	df = DataFrame(arr, columns=['a', 'b', 'c'])
+	print(df)
+	print(type(df))
+	dsp = DataSetPreprocess("")
+	df = dsp.deduplication(df, ['a', 'b', 'c'])
+	print(df)

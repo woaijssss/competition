@@ -10,19 +10,17 @@ import matplotlib.pyplot as plt
 ''' 整合数据预处理方法
 '''
 class DataSetPreprocess:
-	_filename = ""
-
-	def __init__(self, filename):
-		self._filename = filename
+	def __init__(self):
+		pass
 
 	'''
 		加载数据集
 	'''
-	def loadDataSet(self, columns=[], sep=','):
+	def loadDataSet(self, filename, columns=[], sep=','):
 		if not len(columns):		# 必须匹配特征属性
 			return None
 
-		df = pd.read_csv(self._filename, sep=sep)
+		df = pd.read_csv(filename, sep=sep)
 
 		return df
 
@@ -50,13 +48,15 @@ class DataSetPreprocess:
 		# 由于数据中只给出了“时分秒”，因此需要加上一个“年月日”，方便将日期转化为毫秒计算
 		date1 = datetime.datetime(2018, 1, 1, int(hour1), int(min1), int(secs1))
 		date2 = datetime.datetime(2018, 1, 1, int(hour2), int(min2), int(secs2))
-		t1 = time.mktime(date1.timetuple())*1000
-		t2 = time.mktime(date2.timetuple())*1000
+		t1 = time.mktime(date1.timetuple()) * 1000
+		t2 = time.mktime(date2.timetuple()) * 1000
 
 		millsec1 = t1 + int(milsec1)
 		millsec2 = t2 + int(milsec2)
 
-		return (millsec2 - millsec1)
+		ret = (millsec2 - millsec1)
+
+		return ret
 
 	'''
 		检测csv中的异常值
@@ -73,8 +73,8 @@ class DataSetPreprocess:
 	'''
 		按照csv_no字段，截取行，按块拆分数据集
 	'''
-	def truncStruct(self, df, number):
-		df_new = DataFrame(columns=['time', 'spindle_load', 'x', 'y', 'z', 'csv_no'])
+	def truncStruct(self, df, columns=[], number=1):
+		df_new = DataFrame(columns=columns)
 
 		for i in range(0, len(df)):
 			if df['csv_no'][i] == number:
@@ -108,7 +108,7 @@ def plot():
 	# filename = '../../datas/01-TrainingData-qLua/01/Sensor/1.csv'
 	filename = 'plc-01_dataset.csv'
 	df = pd.read_csv(filename, sep=',')
-	data_processor = DataSetPreprocess(filename)
+	data_processor = DataSetPreprocess()
 	df = data_processor.deduplication(df, names)
 	print(len(df))
 
@@ -139,37 +139,15 @@ def plot():
 
 
 if __name__ == '__main__':
-	'''
-	filename = '../../datas/01-TrainingData-qLua/01/PLC/plc.csv'
-
-	data_processor = DataSetPreprocess(filename)
-	names = ['time', 'spindle_load', 'x', 'y', 'z', 'csv_no']
-	duplicate_names = names[1:len(names)-1:]
-	print(duplicate_names)
-	plc_df = data_processor.loadDataSet(columns=names)
-
-	df_new = plc_df.drop(["csv_no"], axis=1)
-
-	df_new = data_processor.deduplication(df_new, columns=duplicate_names)
-	print("-->plc_df: ", len(plc_df))
-	print("-->df_new: ", len(df_new))
-
-	spindle_load_set = set(plc_df['spindle_load'])
-	x_set = set(plc_df['x'])
-	y_set = set(plc_df['y'])
-	z_set = set(plc_df['z'])
-	print('spindle_load_set: ', len(spindle_load_set))
-	print('x_set: ', len(x_set))
-	print('y_set: ', len(y_set))
-	print('z_set: ', len(z_set))
-	'''
-
 	df, time_lst, vibration_1_lst, vibration_2_lst, vibration_3_lst, current_lst = plot()
 
 	plt.title('Data set parameter analysis')
 
 	print(len(time_lst))
 	print(len(df))
+
+	time_lst = time_lst[60000:80000]
+	current_lst = current_lst[60000:80000]
 
 	import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
 	dgp = datasetGraphPlot.GraphPlot()

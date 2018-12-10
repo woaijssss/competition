@@ -23,13 +23,13 @@ class GraphPlot:
 		plt.legend()  # 显示图例
 		self._fig.show()
 
+	def plotScatter(self, x_lst=[], x_label='x', y_lst=[], y_label='y', marker='.'):
+		plt.scatter(x_lst, y_lst, marker=marker)
+		plt.xlabel(x_label)
+		plt.ylabel(y_label)
+
 	def show(self, x_label='x', y_label='y'):
 		plt.legend()  # 显示图例
 		plt.xlabel(x_label)
 		plt.ylabel(y_label)
 		self._fig.show()
-
-
-
-if __name__ == '__main__':
-	pass

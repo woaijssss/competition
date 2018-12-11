@@ -44,16 +44,19 @@ def test():
 	name1 = ['a11', 'a12', 'a13']
 	name2 = ['a21', 'a22', 'a23']
 	d1 = DataFrame(arr1, columns=name1)
-	d2 = DataFrame(arr2, columns=name1)
+	d2 = DataFrame(arr2, columns=name2, index=[4, 5, 6])
 
-	# d = pd.concat([d1, d2], axis=1)
-	df = DataFrame(columns=name1)
-	df = pd.concat([df, d1], axis=0)
-	df = pd.concat([df, d2], axis=0)
+	df = DataFrame(columns=['a11', 'a12', 'a13', 'a21', 'a22', 'a23'])
 
-	df.drop(df.index, inplace=True)
-	df = pd.concat([df, d1], axis=0)
-	df = pd.concat([df, d2], axis=0)
+	# d2 = d2.reset_index(drop=True)
+	d = pd.concat([d1, d2], axis=1)
+	df = pd.concat([df, d], axis=0)
+
+	d = pd.concat([d1, d2], axis=1)
+	df = pd.concat([df, d], axis=0)
+	df = df.abs()	# 出现NAN，这里会报错
+	# df = df.reset_index(drop=True)
+
 	print(df)
 	quit(0)
 
@@ -62,7 +65,7 @@ if __name__ == '__main__':
 	# test()
 	# testTrunc()
 
-	dir_name = '../datas/01-TrainingData-qLua/01'		# 目标数据目录
+	dir_name = '../../01-TrainingData-qLua/01'		# 目标数据目录
 
 	# plc数据的列
 	names = ['time', 'spindle_load', 'x', 'y', 'z', 'csv_no']
@@ -74,7 +77,8 @@ if __name__ == '__main__':
 
 	data_processor = DataSetPreprocess()
 	# plc_df = data_processor.loadDataSet(dir_name + '/plc_01.csv', columns=names)
-	plc_df = data_processor.loadDataSet('../datas/01-TrainingData-qLua/01/PLC/plc.csv', columns=names)
+	plc_df = data_processor.loadDataSet(dir_name + '/PLC/plc.csv', columns=names)
+	plc_df_tmp = DataFrame(columns=names)		# PLC用于合并的结构
 
 	# sensor数据的列
 	sensor_columns = ['vibration_1', 'vibration_2', 'vibration_3', 'current']
@@ -132,27 +136,26 @@ if __name__ == '__main__':
 			if sensor_len <= time_n:
 				time_n = sensor_len
 
-			print(time_n)
+			print('------>plc对应sensor中的数据行数: ', time_n)
 
 			''' 
 				步骤3：对plc数据进行复制，同时对sensor数据按照相应行数进行截取
 			'''
-			plc_df_tmp = DataFrame(columns=names)
+			plc_df_tmp.drop(plc_df_tmp.index, inplace=True)
 			for j in range(0, time_n):
 				plc_df_tmp.loc[j] = series_i_1		# 将plc的数据，复制n行，使其与sensor要截取的行数相等
+			print('plc_df_tmp复制了 %d 次， 复制后的大小：%d' % (time_n, len(plc_df_tmp)))
 
 			# 截取sensor_df中对应的行
 			sensor_df_tmp = sensor_df.iloc[seek_ptr:time_n+seek_ptr, :]
-			print(len(sensor_df_tmp))
-			print(sensor_df_tmp.head(5))
-			print(sensor_df_tmp.tail(5))
-
+			print('从 %d 处开始截取，截取的sensor数据长度: %d； 截取后的长度为：%d' % (seek_ptr, time_n, len(sensor_df_tmp)))
 			'''
 				按照两行的间隔时间time_diff和行数time_n，对损失时间，生成等差数列
 			'''
 			diff_arr = np.linspace(all_time, all_time - time_diff, time_n)
 			all_time -= time_diff
 			diff_df = DataFrame(diff_arr, columns=['last_time'])
+			print('时间差的等差数列大小：%d ； diff_df大小：%d' % (len(diff_arr), len(diff_df)))
 
 			seek_ptr += time_n		# 更新记录指针的位置
 			sensor_len -= time_n
@@ -160,9 +163,16 @@ if __name__ == '__main__':
 			'''
 				步骤4：将一次合并的结果，追加到新的dataframe中
 			'''
+			plc_df_tmp = plc_df_tmp.reset_index(drop=True)
+			sensor_df_tmp = sensor_df_tmp.reset_index(drop=True)
+			diff_df = diff_df.reset_index(drop=True)
 			df = pd.concat([plc_df_tmp, sensor_df_tmp, diff_df], axis=1)		# 合并plc、sensor数据和剩余时间数据
+			print('需要合并的df的大小（后）:', len(df))
+			print('第 %d 次合并前的plc_df_tmp, sensor_df_tmp大小: %d, %d' % (i, len(plc_df_tmp), len(sensor_df_tmp)))
+			print('第 %d 次合并前的dataframe大小: %d' % (i, len(df_new)))
 			df_new = pd.concat([df_new, df], axis=0)					# 将合并后的结果，追加到新的dataframe中用于保存
-			print(len(df_new))
+			df_new = df_new.reset_index(drop=True)
+			print('第 %d 次合并后的dataframe大小: %d' % (i, len(df_new)))
 
 	'''
 		保存之前要做：

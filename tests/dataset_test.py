@@ -29,36 +29,41 @@ def testTrunc():
 
 
 def test():
-	arr1 = np.array([
-		[1, 1, 1],
-		[2, 2, 2],
-		[3, 3, 3]
-	])
-
-	arr2 = np.array([
-		['a', 'a', 'a'],
-		['b', 'b', 'b'],
-		['c', 'c', 'c']
-	])
-
-	name1 = ['a11', 'a12', 'a13']
-	name2 = ['a21', 'a22', 'a23']
-	d1 = DataFrame(arr1, columns=name1)
-	d2 = DataFrame(arr2, columns=name2, index=[4, 5, 6])
-
-	df = DataFrame(columns=['a11', 'a12', 'a13', 'a21', 'a22', 'a23'])
-
-	# d2 = d2.reset_index(drop=True)
-	d = pd.concat([d1, d2], axis=1)
-	df = pd.concat([df, d], axis=0)
-
-	d = pd.concat([d1, d2], axis=1)
-	df = pd.concat([df, d], axis=0)
-	df = df.abs()	# 出现NAN，这里会报错
-	# df = df.reset_index(drop=True)
-
-	print(df)
-	quit(0)
+    arr1 = np.array([
+        [1, 1, 1],
+        [2, 2, 2],
+        [3, 3, 3]
+    ])
+    
+    arr2 = np.array([
+        ['a', 'a', 'a'],
+        ['b', 'b', 'b'],
+        ['c', 'c', 'c']
+    ])
+    
+    name1 = ['a11', 'a12', 'a13']
+    name2 = ['a21', 'a22', 'a23']
+    d1 = DataFrame(arr1, columns=name1)
+    d2 = DataFrame(arr2, columns=name2, index=[4, 5, 6]).reset_index(drop=True)
+    
+    df = DataFrame(columns=['a11', 'a12', 'a13', 'a21', 'a22', 'a23'])
+    
+    import time
+    
+    t1 = time.time()
+    
+    # d2 = d2.reset_index(drop=True)
+    # d = pd.concat([d1, d2], axis=1)     # 0.0010988712310791016 s
+    # df = pd.concat([df, d], axis=0)
+    t2 = time.time()
+    print(df)
+    print(t2-t1)
+    
+    # d = pd.concat([d1, d2], axis=1)
+    # df = pd.concat([df, d], axis=0)
+    # df = df.abs()	# 出现NAN，这里会报错
+    # df = df.reset_index(drop=True)
+    quit(0)
 
 def testDfCopy():
     arr1 = np.array([
@@ -95,7 +100,7 @@ def testDfCopy():
     quit(0)
 
 if __name__ == '__main__':
-    # test()
+    test()
     # testTrunc()
     # testDfCopy()
     
@@ -108,7 +113,7 @@ if __name__ == '__main__':
     new_names_after_drop = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
     data_processor = DataSetPreprocess()
     # plc_df = data_processor.loadDataSet(dir_name + '/plc_01.csv', columns=names)
-    plc_df = data_processor.loadDataSet(dir_name + '/PLC/plc.csv', columns=names)
+    plc_df = data_processor.loadDataSet(dir_name + '/PLC/plc_test.csv', columns=names)
     plc_df_tmp = DataFrame(columns=names)		# PLC用于合并的结构
     # sensor数据的列
     sensor_columns = ['vibration_1', 'vibration_2', 'vibration_3', 'current']

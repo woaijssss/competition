@@ -95,8 +95,8 @@ if __name__ == '__main__':
 
 	df_new = DataFrame(columns=new_names)		# 处理后，需要保存的dataframe
 
-	# for i in range(0, len(plc_df)):
-	for i in range(1, 3):
+	# for i in range(27, 28):
+	for i in range(1, len(plc_df)):
 		'''
 			步骤1：取得plc中需要比较的相邻两行数据
 		'''
@@ -127,6 +127,9 @@ if __name__ == '__main__':
 			time_diff = data_processor.calTimeDiff(time_i_1, time_i)		# 计算两行的时间差，为增加last_time方便
 			print("plc数据中----第 %d 行与 %d 行的时间差为： %d ms" % (i, i-1, time_diff))
 			time_n = int(time_diff * basic_n)		# 在某一时间差内，plc的一行数据对应sensor中数据的行数n
+			if not time_n:
+				print('第 %d 行与第 %d 行的时间差为0' % (i, i-1))
+				continue
 
 			'''
 				当处理每个一分钟的最后一笔数据时，可能会出现sensor文件的剩余数据小于 777*n 的情况，这里是按照实际情况进行合并；
@@ -143,6 +146,8 @@ if __name__ == '__main__':
 			'''
 			plc_df_tmp.drop(plc_df_tmp.index, inplace=True)
 			for j in range(0, time_n):
+				if j == 10000:
+					print(j)
 				plc_df_tmp.loc[j] = series_i_1		# 将plc的数据，复制n行，使其与sensor要截取的行数相等
 			print('plc_df_tmp复制了 %d 次， 复制后的大小：%d' % (time_n, len(plc_df_tmp)))
 

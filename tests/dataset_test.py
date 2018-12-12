@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+import time
+
 import matplotlib.pyplot as plt
 
 from src.datasetStatisticAnalysis.dataset_preprocess import DataSetPreprocess
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     # testTrunc()
     # testDfCopy()
     
-    dir_name = '../datas/01-TrainingData-qLua/02'		# 目标数据目录
+    dir_name = '../../01-TrainingData-qLua/02'		# 目标数据目录
     # plc数据的列
     names = ['time', 'spindle_load', 'x', 'y', 'z', 'csv_no']
     # 用于保存结果的列
@@ -122,7 +124,7 @@ if __name__ == '__main__':
     sensor_df = DataFrame(columns=sensor_columns)		# 处理数据过程中，用于记录sensor数据的dataframe
     df_new = DataFrame(columns=new_names)		# 处理后，需要保存的dataframe
 
-    new_array = []
+    # new_array = []
     '''
         用于记录sensor数据可截取的剩余长度，随着sensor_df的赋值而初始化一次，随着sensor_df的清空而置0
     '''
@@ -143,6 +145,10 @@ if __name__ == '__main__':
             步骤2：确认是否属于同一sensor时间段的数据
         '''
         if csv_number_i > csv_number_i_1:		# 表示在不同sensor文件切换，跳过
+            time_diff = data_processor.calTimeDiff(time_i_1, time_i)
+            print('=======第 %d 行与第 %d 行的时间差为：%d' % (csv_number_i, csv_number_i_1, time_diff))
+            all_time -= time_diff
+            time.sleep(1)
             sensor_df.drop(sensor_df.index, inplace=True)
             # sensor_df = DataFrame(columns=sensor_columns)
             sensor_len = 0
@@ -158,7 +164,9 @@ if __name__ == '__main__':
                 print(sensor_len)
             time_diff = data_processor.calTimeDiff(time_i_1, time_i)		# 计算两行的时间差，为增加last_time方便
             print("plc数据中----第 %d 行与 %d 行的时间差为： %d ms" % (i, i-1, time_diff))
-            time_n = int(time_diff * basic_n)		# 在某一时间差内，plc的一行数据对应sensor中数据的行数n
+            # time_n = int(time_diff * basic_n)		# 在某一时间差内，plc的一行数据对应sensor中数据的行数n
+            time_n = basic_n
+            
             if not time_n:
                 print('第 %d 行与第 %d 行的时间差为0' % (i, i-1))
                 continue
@@ -216,6 +224,7 @@ if __name__ == '__main__':
             print('需要合并的df的大小（后）:', len(df))
             print('第 %d 次合并前的plc_df_tmp, sensor_df_tmp大小: %d, %d' % (i, len(plc_df_tmp), len(sensor_df_tmp)))
 
+            new_array = []
             print('第 %d 次合并前的dataframe大小: %d' % (i, len(new_array)))
             for j in range(0, len(df)):
                 new_array.append(list(df.loc[j]))
@@ -223,6 +232,13 @@ if __name__ == '__main__':
             # df_new = pd.concat([df_new, df], axis=0)					# 将合并后的结果，追加到新的dataframe中用于保存
             # df_new = df_new.reset_index(drop=True)
             print('第 %d 次合并后的dataframe大小: %d' % (i, len(new_array)))
+
+            df_new = DataFrame(np.array(new_array), columns=new_names_after_drop)
+            df_new = data_processor.abs(df_new)
+            '''
+                步骤5：保存合并数据后的dataframe
+            '''
+            df_new.to_csv(dir_name + '/new.csv', columns=new_names_after_drop, sep=',', index=False, mode='a')
 
             '''            
            print('第 %d 次合并前的dataframe大小: %d' % (i, len(df_new)))
@@ -236,12 +252,12 @@ if __name__ == '__main__':
         （2）对原plc的列数据进行去矢量化，
     '''
     # df_new = df_new.drop(['time', 'csv_no'], axis=1)
-    df_new = DataFrame(np.array(new_array), columns=new_names_after_drop)
-    df_new = data_processor.abs(df_new)
-    '''
-        步骤5：保存合并数据后的dataframe
-    '''
-    df_new.to_csv(dir_name + '/new.csv', columns=new_names_after_drop, sep=',', index=False)
+    # df_new = DataFrame(np.array(new_array), columns=new_names_after_drop)
+    # df_new = data_processor.abs(df_new)
+    # '''
+    #     步骤5：保存合并数据后的dataframe
+    # '''
+    # df_new.to_csv(dir_name + '/new.csv', columns=new_names_after_drop, sep=',', index=False, mode='a')
 
 
 

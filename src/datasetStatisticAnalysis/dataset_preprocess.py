@@ -82,6 +82,12 @@ class DataSetPreprocess:
 
 		return df_new
 
+	def trunc(self, df, begin, end):
+		if not isinstance(df, pd.core.frame.DataFrame):
+			return None
+
+		return df.iloc[begin:end, :]
+
 	def minus(self, d1, d2):
 		return d2-d1
 
@@ -96,12 +102,24 @@ class DataSetPreprocess:
 
 		return df
 
+	'''
+		去矢量化
+	'''
 	def abs(self, df):
 		if not isinstance(df, pd.core.frame.DataFrame):
 			return None
 
 		return df.abs()
 
+	'''
+		按列取平均值
+		返回类型是Series
+	'''
+	def average(self, df):
+		if not isinstance(df, pd.core.frame.DataFrame):
+			return None
+
+		return df.mean()
 
 def plot():
 	names = ["vibration_1", "vibration_2", "vibration_3", "current"]

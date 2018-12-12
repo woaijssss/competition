@@ -1,33 +1,28 @@
 
-import pandas as pd
 from pandas import DataFrame
 import numpy as np
-import time
 
-lst = [1, 2, 3, 4, 5, 6, 7, 8]
-L = []
+import src.samplingSensorData as samplingSensorData
 
-df_new = DataFrame()
+'''
+	测试程序，测试整合后的结果，并保存成本地csv，方便比对数据
+'''
+def test():
+	plc_csv_dir = '../datas/01-TrainingData-qLua/01'
+	filename = plc_csv_dir + '/PLC/plc_test.csv'
+	columns = ['vibration_1', 'vibration_2', 'vibration_3', 'current']
+	# df_new = DataFrame(columns=columns)
+	arr = []
 
-names = ['a', 'b', 'c', 'e', 'f', 'g', 'h', 'i']
-df = DataFrame(np.array(L), columns=names)
+	ssd = samplingSensorData.SamplingSensorData(plc_csv_dir, test_filename=filename)  # 读取plc.csv文件
 
-for i in range(0, 7770):
-	L.append(lst)
-#df = DataFrame(np.array(L))
+	for line in range(0, ssd.getPLCLength()):  # 对当前plc所有数据操作
+		new_sensor_df = ssd.samplingSensorData(line=line)		# 计算后的结果
 
-ladd = L.copy()
+		arr.append(list(new_sensor_df.loc[0]))
 
-t1 = time.time()
-for i in range(0, 1):
-	for j in range(0, len(ladd)):
-		L.append(ladd[j])
+	df_new = DataFrame(np.array(arr), columns=columns)
+	df_new.to_csv(plc_csv_dir + '/new.csv', sep=',', index=False)
 
-li = []
-for i in range(0, len(df)):
-	li.append(list(df.loc[i]))
-
-t2 = time.time()
-print(df)
-
-print(t2-t1)
+if __name__ == '__main__':
+	test()

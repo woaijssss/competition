@@ -24,9 +24,12 @@ class GraphPlot:
 		self._fig.show()
 
 	def plotScatter(self, x_lst=[], x_label='x', y_lst=[], y_label='y', marker='.'):
-		plt.scatter(x_lst, y_lst, marker=marker)
+		plt.scatter(x_lst, y_lst, marker=marker, label='y_test')
 		plt.xlabel(x_label)
 		plt.ylabel(y_label)
+		
+	def plot(self, xlst, y_predictlst, y_label):
+		plt.plot(xlst, y_predictlst, color='green', label='y_predict')
 
 	def show(self, x_label='x', y_label='y'):
 		plt.legend()  # 显示图例

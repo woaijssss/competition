@@ -8,8 +8,8 @@ import src.samplingSensorData as samplingSensorData
 	测试程序，测试整合后的结果，并保存成本地csv，方便比对数据
 '''
 def test():
-	for i in range(2, 4):
-		plc_csv_dir = '../../01-TrainingData-qLua/0' + str(i)
+	for i in range(1, 6):
+		plc_csv_dir = '../../02-TestingData-poL3/0' + str(i)
 		filename = plc_csv_dir + '/PLC/plc_test.csv'
 		columns = ['vibration_1', 'vibration_2', 'vibration_3', 'current']
 		# df_new = DataFrame(columns=columns)

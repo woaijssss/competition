@@ -112,5 +112,6 @@ if __name__ == '__main__':
     # dgp.plotScatter(x_lst=xlst, y_lst=y_predictlst, y_label='y_predict')
     dgp.plot(xlst, y_predictlst, 'y_predict')
     dgp.show()
+
     
     

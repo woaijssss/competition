@@ -9,6 +9,8 @@ from sklearn.ensemble import AdaBoostRegressor
 import logging
 import time
 
+import src.models.regressor as regressor
+
 logging.basicConfig(level=logging.DEBUG,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
@@ -21,18 +23,15 @@ if __name__ == '__main__':
 	filename = '../datas/01-TrainingData-qLua/final.csv'
 	dp = dataset_preprocess.DataSetPreprocess()
 	dataset_df = dp.loadDataSet(filename=filename, columns=names)
-	dataset_df = dataset_df.dropna(how='any', axis=0)
+	dataset_df = dp.filterInvalidValue(dataset_df)
 
+	# 选择特征和标签
 	X = dataset_df[names[0:len(names) - 1]]
 	Y = dataset_df['last_time']
-	print(X.columns)
-	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=15)
 
-	from sklearn.preprocessing import StandardScaler
-
-	ss = StandardScaler()  # 数据标准化
-	X_train = ss.fit_transform(X_train)
-	X_test = ss.transform(X_test)
+	regressor = regressor.Regressor()
+	regressor.splitDataSet(X, Y, test_size=0.3, random_rate=15)		# 拆分训练集
+	regressor.trainTestStandard()				# 数据标准化
 
 	'''
 		默认为CART树
@@ -42,7 +41,7 @@ if __name__ == '__main__':
 	'''
 	import numpy as np
 
-	learning_rate = np.linspace(0.01, 0.1, 20)
+	learning_rate = np.linspace(0.01, 0.1, 1)
 	# learning_rate = np.linspace(0.1, 2, 2)
 	i = 0
 	result = [0, 0, 0]
@@ -60,40 +59,26 @@ if __name__ == '__main__':
 	'''
 
 	for rate in learning_rate:
-		for max_depth in range(9, 11):
-			for estimator in range(60, 65):
+		for max_depth in range(9, 10):
+			for estimator in range(60, 61):
 				t1 = time.time()
 				i += 1
-				clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
-										n_estimators=estimator, learning_rate=rate,
-										loss='square')
+				regressor.trainModel(estimator, max_depth, rate)					# 模型训练
+				y, y_predict = regressor.predict()									# 模型预测
+				acc_y, acc_y_predict = regressor.evaluate()						# 模型评估
 
-				clf.fit(X_train, Y_train)
-
-				# 模型预测
-				y_predict = clf.predict(X_test)
-				y_train_predict = clf.predict(X_train)
-
-				from sklearn.metrics import r2_score
-				ypre = regressor.traverse(y_predict)  # 对预测的结果进行数值转换
-				ytrainpre = regressor.traverse(y_train_predict)
-				# print(y_predict)
-				# print(ypre)
-				acc_predict = r2_score(Y_train, ytrainpre)  # 训练集预测的r^2
-				acc_pre = r2_score(Y_test, ypre)  # 测试集预测的r^2
-
-				logging.debug('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>训练的准确率:%f' % (i, estimator, max_depth, rate, acc_predict))
-				logging.debug('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>预测的准确率:%f' % (i, estimator, max_depth, rate, acc_pre))
+				logging.debug('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>训练的准确率:%f' % (i, estimator, max_depth, rate, acc_y))
+				logging.debug('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>预测的准确率:%f' % (i, estimator, max_depth, rate, acc_y_predict))
 				logging.debug('---------------------------')
-				print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>训练的准确率:%f' % (i, estimator, max_depth, rate, acc_predict))
-				print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>预测的准确率:%f' % (i, estimator, max_depth, rate, acc_pre))
+				print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>训练的准确率:%f' % (i, estimator, max_depth, rate, acc_y))
+				print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>预测的准确率:%f' % (i, estimator, max_depth, rate, acc_y_predict))
 				print('---------------------------')
 				# if acc_predict >= acc_pre:
-				if acc_predict > result[1] and acc_pre > result[2]:
+				if acc_y > result[1] and acc_y_predict > result[2]:
 					print('第 %d 轮优于第 %d 轮，替换。。。' % (i, i-1))
-					result[0], result[1], result[2] = i, acc_predict, acc_pre
+					result[0], result[1], result[2] = i, acc_y, acc_y_predict
 					params[0], params[1], params[2] = estimator, max_depth, rate
-					y_predict_best = ypre
+					regressor._y_predict_tra = y_predict		# 替换最优预测值
 
 				t2 = time.time()
 				print('耗时:', t2-t1)
@@ -102,19 +87,6 @@ if __name__ == '__main__':
 	print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>训练的准确率:%f' % (result[0], params[0], params[1], params[2], result[1]))
 	print('第 %d 轮---estimator为 %d， max_depth为 %d， learning_rate为：%f------>预测的准确率:%f' % (result[1], params[0], params[1], params[2], result[2]))
 
-	# 任取区间100的数据进行可视化
-	# print(list(Y_train[0:100]))
-	# print(list(Y_test[0:100]))
-	# print(list(ypre[0:100]))
-	xlst = [i for i in range(700, 800)]
-	ytestlst = list(Y_test)[700:800]
-	y_predictlst = list(y_predict_best)[700:800]
 
-	# 可视化
-	import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
-
-	dgp = datasetGraphPlot.GraphPlot()
-	dgp.plotScatter(x_lst=xlst, y_lst=ytestlst, y_label='y_test')
-	# dgp.plotScatter(x_lst=xlst, y_lst=y_predictlst, y_label='y_predict')
-	dgp.plot(xlst, y_predictlst, 'y_predict')
-	dgp.show()
+	regressor.visualization(regressor._y_predict_tra)					# 预测结果可视化
+	regressor.save()							# 模型保存

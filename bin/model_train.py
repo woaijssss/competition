@@ -42,29 +42,28 @@ if __name__ == '__main__':
 	'''
 	import numpy as np
 
-	learning_rate = np.linspace(0.05, 0.15, 20)
+	learning_rate = np.linspace(0.01, 0.1, 20)
 	# learning_rate = np.linspace(0.1, 2, 2)
 	i = 0
 	result = [0, 0, 0]
 	params = [-1, -1, -1]
 	y_predict_best = []		# 预测中最好的y值
 
-	''' 当前最好的参数
-		第 37 轮---estimator为 61， max_depth为 10， learning_rate为：0.733333------>训练的准确率:0.882113
-		第 0 轮---estimator为 61， max_depth为 10， learning_rate为：0.733333------>预测的准确率:0.880970
+	'''
+		当前最好的参数
+			第 37 轮---estimator为 61， max_depth为 10， learning_rate为：0.733333------>训练的准确率:0.882113
+			第 0 轮---estimator为 61， max_depth为 10， learning_rate为：0.733333------>预测的准确率:0.880970
+		
+		较好的参数：
+			第 0 轮---estimator为 67， max_depth为 15， learning_rate为：0.010000------>训练的准确率:0.951467
+			第 0 轮---estimator为 67， max_depth为 15， learning_rate为：0.010000------>预测的准确率:0.950328
 	'''
 
 	for rate in learning_rate:
 		for max_depth in range(9, 11):
 			for estimator in range(60, 65):
 				t1 = time.time()
-	# for rate in learning_rate:
-	# 	for max_depth in range(1, 2):
-	# 		for estimator in range(50, 52):
 				i += 1
-				# clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=8, splitter='random'),
-				# 						n_estimators=50, learning_rate=1.3,
-				# 						loss='square')
 				clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
 										n_estimators=estimator, learning_rate=rate,
 										loss='square')
@@ -76,12 +75,10 @@ if __name__ == '__main__':
 				y_train_predict = clf.predict(X_train)
 
 				from sklearn.metrics import r2_score
-
 				ypre = regressor.traverse(y_predict)  # 对预测的结果进行数值转换
 				ytrainpre = regressor.traverse(y_train_predict)
 				# print(y_predict)
 				# print(ypre)
-
 				acc_predict = r2_score(Y_train, ytrainpre)  # 训练集预测的r^2
 				acc_pre = r2_score(Y_test, ypre)  # 测试集预测的r^2
 

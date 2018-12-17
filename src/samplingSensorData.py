@@ -4,6 +4,7 @@ from pandas import DataFrame
 import numpy as np
 
 import src.datasetStatisticAnalysis.dataset_preprocess as dataset_preprocess
+import logging
 
 '''
 接口的调用流程：		
@@ -66,19 +67,20 @@ class SamplingSensorData:
 		tm, spindle_load, x, y, z, csv_no = self._plc_df.loc[line]		# 取出plc当前处理行的所有数据
 
 		if csv_no > self._sensor_csv_no:	# 判断是否需要重置sensor.csv的数据
-			self._sensor_df.drop(self._sensor_df.index, inplace=True)	# 清空上一次保存的sensor_df
+			# self._sensor_df.drop(self._sensor_df.index, inplace=True)	# 清空上一次保存的sensor_df
+			self._sensor_df = DataFrame(columns=self._sensor_columns)
 			self._sensor_len = 0
 			self._seek_ptr = 0
 			self._sensor_csv_no = csv_no
 			self._basic_n = 777
 
 		if self._sensor_df.empty:		# 按照当前的sensor.csv号，读取sensor数据
-			print('---------------读取第 %d 个csv文件' % self._sensor_csv_no)
+			logging.debug('---------------读取第 %d 个csv文件' % self._sensor_csv_no)
 			#  按照plc.csv中的csv_no读取对应的sensor数据
 			self._sensor_df = self._data_processor.loadDataSet(self._csv_dir + '/Sensor/' + str(self._sensor_csv_no) + '.csv',
 												   columns=self._sensor_columns)
 			self._sensor_len = len(self._sensor_df)
-			# print(self._sensor_len)
+			# logging.debug(self._sensor_len)
 
 			#=============================================================================================================
 			# 问题-1-------------------->以下过程考虑是否需要优化？
@@ -86,23 +88,26 @@ class SamplingSensorData:
 			sensor_plc_counts = len(self._plc_df[self._plc_df['csv_no'] == self._sensor_csv_no])
 			# 计算sensor数据量与plc中当前csv_no总行数的对应倍数，防止按照固定777计算，会剩余很多plc的数据
 			# 只在sensor数据加载时计算一次，因为加载后，到上一个判断期间，self._sensor_df都不会变
-			self._basic_n = int(self._sensor_len / sensor_plc_counts) + 1
-			print('倍数计算>>>>>>>>>plc中csv_no为 %d 的行数为 %d，当前第 %d 个sensor数据长度为 %d ====>倍数为：%d' %
+			# self._basic_n = int(self._sensor_len / sensor_plc_counts) + 1
+			self._basic_n = int(self._sensor_len / (sensor_plc_counts-1))
+			logging.debug('倍数计算>>>>>>>>>plc中csv_no为 %d 的行数为 %d，当前第 %d 个sensor数据长度为 %d ====>倍数为：%d' %
 				  (self._sensor_csv_no, sensor_plc_counts, self._sensor_csv_no, self._sensor_len, self._basic_n))
 			#=============================================================================================================
 
 
 		if not self._sensor_len:		# 防止出现sensor最后一笔截取的数据，不是对应plc指定csv_no的最后一个值，导致出错的情况
-			print('第 %d 个sensor数据剩余长度为 %d,继续读取下一个sensor数据' % (self._sensor_csv_no, self._sensor_len))
+			logging.debug('第 %d 个sensor数据剩余长度为 %d,继续读取下一个sensor数据' % (self._sensor_csv_no, self._sensor_len))
 			return DataFrame()			# 为方便与成功的df做比较，这里返回一个空的df
 
 		if self._sensor_len < self._basic_n:		# 如果sensor的最后一笔要截取的数据小于指定长度，则按实际情况截取
-			print('替换倍数------->第 %d 个sensor数据剩余长度为 %d，小于指定长度 %d，将原截取值 %d 替换为 %d' %
+			logging.debug('替换倍数------->第 %d 个sensor数据剩余长度为 %d，小于指定长度 %d，将原截取值 %d 替换为 %d' %
 				  (self._sensor_csv_no, self._sensor_len, self._basic_n, self._basic_n, self._sensor_len))
 			self._basic_n = self._sensor_len
 
 		sensor_df_tmp = self.trunc(begin=self._seek_ptr, end=self._seek_ptr+self._basic_n)		# 对sensor数据截取指定长度
-		print('记录当前=======>当前处理的行数 %d， 每次增加 %d 行，剩余 %d 行, 当前指向 %d 行' % (line, self._basic_n, self._sensor_len, self._seek_ptr))
+		logging.debug('记录当前=======>当前处理的行数 %d， 每次增加 %d 行，剩余 %d 行, 当前指向 %d 行' % (line+1, self._basic_n, self._sensor_len, self._seek_ptr))
+		
+		sensor_df_tmp = self._data_processor.filterInvalidValue(sensor_df_tmp)
 
 		record_seek = self._seek_ptr
 
@@ -114,10 +119,10 @@ class SamplingSensorData:
 		series = self.average(sensor_df)		# （3）取平均值
 		sensor_df = pd.DataFrame([series])
 
-		print('+++++++++++++++++++++++++++++++++++++++++++++')
-		print('第 %d 个sensor数据，%d ----%d 行的平均值dataframe为：' % (self._sensor_csv_no, record_seek, self._seek_ptr))
-		print(sensor_df)
-		print('+++++++++++++++++++++++++++++++++++++++++++++')
+		logging.debug('+++++++++++++++++++++++++++++++++++++++++++++')
+		logging.debug('第 %d 个sensor数据，%d ----%d 行的平均值dataframe为：' % (self._sensor_csv_no, record_seek, self._seek_ptr))
+		logging.debug(sensor_df)
+		logging.debug('+++++++++++++++++++++++++++++++++++++++++++++')
 
 		return sensor_df						# 返回处理后的sensor_df
 
@@ -126,7 +131,7 @@ class SamplingSensorData:
 			因为csv文件打开时，第一列是columns，并且程序从0下标开始取值，而csv文件中是从1开始，
 			实际行数应该相差2
 		'''
-		# print('trunc: 从第 %d 行截取到第 %d 行' % (begin+1, end+1))
+		# logging.debug('trunc: 从第 %d 行截取到第 %d 行' % (begin+1, end+1))
 		return self._data_processor.trunc(self._sensor_df, begin=begin, end=end)
 
 	'''
@@ -154,4 +159,4 @@ if __name__ == '__main__':
 		new_sensor_df = ssd.samplingSensorData(line=line)
 
 		if not new_sensor_df.empty:
-			print(new_sensor_df)
+			logging.debug(new_sensor_df)

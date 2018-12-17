@@ -23,6 +23,13 @@ class DataSetPreprocess:
 		df = pd.read_csv(filename, sep=sep)
 
 		return df
+	
+	'''
+		将dataframe，按照columns列，保存到指定csv文件
+	'''
+	def saveDataSet(self, lst, columns, path='.', sep=','):
+		df = DataFrame(np.array(lst), columns=columns)
+		df.to_csv(path, sep=sep, index=False)
 
 	'''
 		计算np.ndarray类型的最大值和最小值及下标
@@ -61,14 +68,24 @@ class DataSetPreprocess:
 	'''
 		检测csv中的异常值
 	'''
-	def detectInvalidValue(self, df):
+	def filterInvalidValue(self, df):
 		if not isinstance(df, pd.core.frame.DataFrame):
 			return False
 
 		# 必须是dataframe
-		ret1 = df.isnull().any()	# 检测nan
+		# ret1 = df.isnull().any()	# 检测nan
+		
+		df = df.dropna(how='any', axis=0)		# 丢弃nan行
+		
+		''' 过滤大于阈值的异常值'''
+		for name in df.columns:
+			tmp = df[(np.abs(df[name]) > 1e+10) | ((0 < np.abs(df[name])) & (np.abs(df[name]) < 1e-10))]  # 检测异常值：inf、1e+300大数
+			
+			for index in tmp.index:
+				print('-------->有异常值，index为：', index, '------异常值为', df.loc[index][name])
+				df = df.drop(index=index, axis=0)
 
-		return ret1
+		return df
 
 	'''
 		按照csv_no字段，截取行，按块拆分数据集

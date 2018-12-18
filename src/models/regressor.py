@@ -21,6 +21,7 @@ class Regressor:
     X_train, X_test, Y_train, Y_test = None, None, None, None
     _y_predict, _y = None, None
     _y_predict_tra, _y_tra = None, None
+    _y_predict_best = []
 
     def __init__(self):
         pass
@@ -46,6 +47,9 @@ class Regressor:
         self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
                                 n_estimators=50, learning_rate=rate,
                                 loss='square')
+        '''
+            此处可以加上网格搜索和交叉验证
+        '''
         # self._clf = GridSearchCV()
         self._clf.fit(self.X_train, self.Y_train)
 
@@ -78,9 +82,12 @@ class Regressor:
     '''
     def visualization(self, y_predict):
         # 任取区间100的数据进行可视化
-        xlst = [i for i in range(700, 800)]
-        ytestlst = list(self.Y_test)[700:800]
-        y_predictlst = list(self._y_predict_tra)[700:800]
+        # xlst = [i for i in range(700, 800)]
+        # ytestlst = list(self.Y_test)[700:800]
+        # y_predictlst = list(y_predict)[700:800]
+        xlst = [i for i in range(0, len(self.Y_test))]
+        ytestlst = list(self.Y_test)
+        y_predictlst = list(y_predict)
 
         # 可视化
         import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
@@ -95,6 +102,7 @@ class Regressor:
 
     def load(self, path='./model.m'):
         self._clf = joblib.load(path)
+        return self._clf
 
 if __name__ == '__main__':
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']

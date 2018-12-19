@@ -16,13 +16,67 @@ logging.basicConfig(level=logging.DEBUG,
                     filename='./record.log',
                     filemode='w')
 
+def checkDataSet(df):
+    names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
+    for column in df.columns[0:len(df.columns)-1]:
+        lst = df[column]
+
+        print(column + '======================================================')
+        import numpy as np
+        Y_arr = np.array(lst)
+        print('均值----->:', np.mean(Y_arr))
+        from scipy import stats
+        print('众数----->:', stats.mode(Y_arr)[0][0])
+        print('中位数----->:', np.median(Y_arr))
+        print('方差----->:', np.var(Y_arr))
+        print('最大值----->:', np.max(Y_arr))
+        print('最小值----->:', np.min(Y_arr))
+    
+    quit()
+    
+def test(df):
+    print(len(df))
+    tmp = df[(df['vibration_1'] >= 100) | (df['vibration_2'] >= 100) | (df['vibration_3'] >= 100)]
+    
+    for i in tmp.index:
+        df = df.drop(index=i, axis=0)
+        
+    print(len(df))
+
+    print(df['spindle_load'].describe())
+    print('------')
+    print(df['x'].describe())
+    print('------')
+    print(df['y'].describe())
+    print('------')
+    print(df['z'].describe())
+    print('------')
+    print(df['vibration_1'].describe())
+    print('------')
+    print(df['vibration_2'].describe())
+    print('------')
+    print(df['vibration_3'].describe())
+    print('------')
+    print(df['current'].describe())
+    
+    # df.to_csv('../../01-TrainingData-qLua/final_new.csv', columns=df.columns, sep=',')
+    
+    quit()
+
+
 if __name__ == '__main__':
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
-    filename = '../../01-TrainingData-qLua/final.csv'
+    filename = '../../01-TrainingData-qLua/final_new.csv'
     dp = dataset_preprocess.DataSetPreprocess()
     dataset_df = dp.loadDataSet(filename=filename, columns=names)
     
+    # test(dataset_df)
+    
     dataset_df = dp.filterInvalidValue(dataset_df)
+    
+    dataset_df = dp.abs(dataset_df)
+    
+    # checkDataSet(dataset_df)
     
     # 选择特征和标签
     X = dataset_df[names[0:len(names) - 1]]
@@ -97,3 +151,4 @@ if __name__ == '__main__':
     
     regressor.visualization(regressor._y_predict_best)  # 预测结果可视化
     regressor.save()  # 模型保存
+    # regressor.cvBestParams()

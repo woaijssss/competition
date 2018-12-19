@@ -7,7 +7,7 @@ if __name__ == '__main__':
     dp = dataset_preprocess.DataSetPreprocess()
     
     dataset = "../../01-TrainingData-qLua/final.csv"
-    names = ['spindle_load', 'x', 'y', 'z', 'last_time', 'vibration_1', 'vibration_2', 'vibration_3', 'current']
+    names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
     df = dp.loadDataSet(filename=dataset, columns=names)
     
     current_lst_y = list(df['current'])

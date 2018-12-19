@@ -1,71 +1,58 @@
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
 import numpy as np
 
 import src.samplingSensorData as samplingSensorData
 import src.datasetStatisticAnalysis.dataset_preprocess as dataset_preprocess
 
-def testDataframe():
-	dp = dataset_preprocess.DataSetPreprocess()
-	arr = [
-		[1, 100, 3],
-		[4, np.inf, 6],
-		[np.inf, 8, 9],
-		[4, np.inf, 6],
-		[4, np.inf, 6],
-		[1, 2, 1e+11],
-		[1, 2, 3],
-		[1, 2, 1e+11],
-		[1, 2, 1e+11],
-		[1, 2, 1e+11],
-		[1, 2, 1e+11],
-		[1, 2, 1e+11],
-		[7, 8, -1e-100],
-		[7, 8, -1e-55],
-		[7, 8, 1e-55],
-		[1, np.NAN, 2]
-	]
-	
-	names = ['a', 'b', 'c']
-	df = DataFrame(np.array(arr), columns=names)
-	# df = dp.filterInvalidValue(df)
-	
-	print(df)
-	
-	print('======>:', df.where(df == np.NAN))
-	
-	#sensor_plc_counts = len(self._plc_df[self._plc_df['csv_no'] == self._sensor_csv_no])
-	print('--->:', len(df[df['c'] == 1e11]))
+def filterValidData():
+    # names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
+    # filename = '../../01-TrainingData-qLua/final_new.csv'
+    names = ['spindle_load', 'x', 'y', 'z', 'csv_no', 'vibration_1', 'vibration_2', 'vibration_3', 'current']
+    filename = '../../02-TestingData-poL3/result05.csv'
+    dp = dataset_preprocess.DataSetPreprocess()
+    df = dp.loadDataSet(filename=filename, columns=names)
+    
+    df = dp.abs(df)
+    
+    print(len(df))
+    tmp = df[
+        (df['vibration_1'] >= 100) | (df['vibration_2'] >= 100) | (df['vibration_3'] >= 100)
+        # # | (df['spindle_load'] <= 0.5)
+        # | (df['x'] <= 20) | (df['x'] >= 800)
+        # # | (df['y'] >= 450) | (df['y'] <= 5)
+        # | (df['z'] >= 440) | (df['z'] <= 150)
+    ]
 
-'''
-	测试程序，测试整合后的结果，并保存成本地csv，方便比对数据
-'''
-def test():
-	for i in range(1, 6):
-		plc_csv_dir = '../../02-TestingData-poL3/0' + str(i)
-		filename = plc_csv_dir + '/PLC/plc_test.csv'
-		columns = ['vibration_1', 'vibration_2', 'vibration_3', 'current']
-		# df_new = DataFrame(columns=columns)
-		arr = []
-	
-		# ssd = samplingSensorData.SamplingSensorData(plc_csv_dir, test_filename=filename)  # 读取plc.csv文件
-		ssd = samplingSensorData.SamplingSensorData(plc_csv_dir)  # 读取plc.csv文件
-	
-		for line in range(0, ssd.getPLCLength()):  # 对当前plc所有数据操作
-			new_sensor_df = ssd.samplingSensorData(line=line)		# 计算后的结果
-	
-			if not new_sensor_df.empty:
-				arr.append(list(new_sensor_df.loc[0]))
-	
-		df_new = DataFrame(np.array(arr), columns=columns)
-		df_new.to_csv(plc_csv_dir + '/new.csv', sep=',', index=False)
+    print('----index:', len(tmp.index))
 
-def testFloat():
-	l = -7193750930745000000000000000000000000000000.381
-	print(type(l))
-	print(l)
+    print('---------->index:', tmp.index)
+    
+    for i in tmp.index:
+        df = df.drop(index=i, axis=0)
+    
+    print(len(df))
+    
+    print(df['spindle_load'].describe())
+    print('------')
+    print(df['x'].describe())
+    print('------')
+    print(df['y'].describe())
+    print('------')
+    print(df['z'].describe())
+    print('------')
+    print(df['vibration_1'].describe())
+    print('------')
+    print(df['vibration_2'].describe())
+    print('------')
+    print(df['vibration_3'].describe())
+    print('------')
+    print(df['current'].describe())
+    
+    # df.to_csv('../../01-TrainingData-qLua/final_new.csv', columns=df.columns, sep=',')
+    df.to_csv('../../02-TestingData-poL3/result05_new.csv', columns=df.columns, sep=',', index=False)
+    
+    quit()
 
 if __name__ == '__main__':
-	# test()
-	testDataframe()
-	# testFloat()
+    filterValidData()

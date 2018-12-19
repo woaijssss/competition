@@ -9,6 +9,7 @@ from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import classification_report
 from sklearn.externals import joblib
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.tree import DecisionTreeRegressor
@@ -44,13 +45,20 @@ class Regressor:
         模型选择、模型训练
     '''
     def trainModel(self, estimator=67, max_depth=15, rate=0.01):
+        # self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
+        #                         n_estimators=50, learning_rate=rate,
+        #                         loss='square')
         self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
                                 n_estimators=50, learning_rate=rate,
-                                loss='square')
+                                loss='linear')
         '''
             此处可以加上网格搜索和交叉验证
         '''
-        # self._clf = GridSearchCV()
+        # param_grid = {
+        #     'n_estimators': [i for i in range(estimator, estimator+5)],
+        #     'learning_rate': np.linspace(rate, rate+1, 5)
+        # }
+        # self._clf = GridSearchCV(clf, param_grid=param_grid, cv=2, n_jobs=1)
         self._clf.fit(self.X_train, self.Y_train)
 
     '''
@@ -61,6 +69,12 @@ class Regressor:
         self._y = self._clf.predict(self.X_train)               # 训练集预测结果
 
         return self._y, self._y_predict
+    
+    def cvBestParams(self):
+        self._y_predict_tra = util.traverse(self._y_predict)    # 测试集预测结果数值转化
+        self._y_tra = util.traverse(self._y)                    # 训练集预测结果数值转换
+
+        print('----->效果最好的参数：', self._clf.best_params_)
 
     '''
         模型评估

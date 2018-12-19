@@ -9,7 +9,7 @@ def filterValidData():
     # names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
     # filename = '../../01-TrainingData-qLua/final_new.csv'
     names = ['spindle_load', 'x', 'y', 'z', 'csv_no', 'vibration_1', 'vibration_2', 'vibration_3', 'current']
-    filename = '../../02-TestingData-poL3/result05.csv'
+    filename = '../datas/02-TestingData-poL3/result01.csv'
     dp = dataset_preprocess.DataSetPreprocess()
     df = dp.loadDataSet(filename=filename, columns=names)
     
@@ -50,7 +50,7 @@ def filterValidData():
     print(df['current'].describe())
     
     # df.to_csv('../../01-TrainingData-qLua/final_new.csv', columns=df.columns, sep=',')
-    df.to_csv('../../02-TestingData-poL3/result05_new.csv', columns=df.columns, sep=',', index=False)
+    df.to_csv('../datas/02-TestingData-poL3/result01_new_twice.csv', columns=df.columns, sep=',', index=False)
     
     quit()
 

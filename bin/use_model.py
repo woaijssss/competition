@@ -47,7 +47,7 @@ if __name__ == '__main__':
     clf = regressor.load()
     
     for file in range(1, 6):
-        filename = '../../02-TestingData-poL3/result0' + str(file) + '_new.csv'
+        filename = '../datas/02-TestingData-poL3/result0' + str(file) + '_new1.csv'
         dp = dataset_preprocess.DataSetPreprocess()
         
         X = dp.loadDataSet(filename=filename, columns=names)
@@ -72,13 +72,13 @@ if __name__ == '__main__':
         for i in range(0, len(csv_no_lst)):
             y_new = y_predict[i] - (10 - csv_no_lst[i]) * 5
             Y.append(y_new)
+            # Y.append(y_predict[i])
             
         # Y = [i for i in Y if i >= 0]
     
         import numpy as np
         import src.util as util
         from pandas import Series, DataFrame
-        print('转换前方差----->:', np.var(Y))
         Y = util.traverse(Y)
         
         # ydf = DataFrame(np.array(Y), columns=names)
@@ -98,8 +98,13 @@ if __name__ == '__main__':
         print(Y_arr[Y_arr < 0])
         
         df['last_time'] = Series(Y_arr)
+        # tmp = df[(df['last_time'] > 240) | (df['last_time'] < 0)]
+        # for index in tmp.index:
+        #     df = df.drop(index=index, axis=0)
+        print('---------------------------------')
         print(df['last_time'].describe())
-        df.to_csv('./result0' + str(file) + '_pre.csv', sep=',', columns=df.columns, index=False)
+        print('---------------------------------')
+        df.to_csv('./result0' + str(file) + '_pre_before_traverse.csv', sep=',', columns=df.columns, index=False)
         
         # xlst = [i for i in range(700, 800)]
         # y_predictlst = list(y_predict)[700:800]
@@ -107,6 +112,6 @@ if __name__ == '__main__':
         import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
         
         dgp = datasetGraphPlot.GraphPlot()
-        # dgp.plotScatter(x_lst=xlst, y_lst=y_predictlst, y_label='y_predict')
-        dgp.plot(xlst, Y, 'y_predict')
-        # dgp.show()
+        dgp.plotScatter(x_lst=xlst, y_lst=Y, y_label='y_predict')
+        # dgp.plot(xlst, Y, 'y_predict')
+        dgp.show()

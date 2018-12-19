@@ -24,7 +24,10 @@ class GraphPlot:
 		self._fig.show()
 
 	def plotScatter(self, x_lst=[], x_label='x', y_lst=[], y_label='y', marker='.'):
-		plt.scatter(x_lst, y_lst, marker=marker, label='y_test')
+		# plt.scatter(x_lst, y_lst, marker=marker, label='y_test')
+		plt.scatter(x_lst, y_lst, marker=marker)
+		# for i in range(7000, len(x_lst)):
+		# 	plt.annotate('(' + str(x_lst[i]) + ',' + str(y_lst[i]) + ')', (x_lst[i], y_lst[i]))
 		plt.xlabel(x_label)
 		plt.ylabel(y_label)
 		

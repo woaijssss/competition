@@ -66,7 +66,8 @@ def test(df):
 
 if __name__ == '__main__':
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
-    filename = '../../01-TrainingData-qLua/final_new.csv'
+    # filename = '../datas/01-TrainingData-qLua/final_new.csv'
+    filename = '../datas/01-TrainingData-qLua/final_new1.csv'
     dp = dataset_preprocess.DataSetPreprocess()
     dataset_df = dp.loadDataSet(filename=filename, columns=names)
     
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     Y = dataset_df['last_time']
     
     regressor = regressor.Regressor()
-    regressor.splitDataSet(X, Y, test_size=0.3, random_rate=15)  # 拆分训练集
+    regressor.splitDataSet(X, Y, test_size=0.15, random_rate=15)  # 拆分训练集
     regressor.trainTestStandard()  # 数据标准化
     
     '''

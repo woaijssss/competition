@@ -108,7 +108,7 @@ class Regressor:
         dgp = datasetGraphPlot.GraphPlot()
         dgp.plotScatter(x_lst=xlst, y_lst=ytestlst, y_label='y_test')
         # dgp.plotScatter(x_lst=xlst, y_lst=y_predictlst, y_label='y_predict')
-        dgp.plot(xlst, y_predictlst, 'y_predict')
+        # dgp.plot(xlst, y_predictlst, 'y_predict')
         dgp.show()
 
     def save(self, path='./model.m'):

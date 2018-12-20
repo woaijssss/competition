@@ -48,9 +48,15 @@ class Regressor:
         # self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
         #                         n_estimators=50, learning_rate=rate,
         #                         loss='square')
-        self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
-                                n_estimators=50, learning_rate=rate,
-                                loss='linear')
+        self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(splitter='best'),
+                                n_estimators=estimator, learning_rate=rate,
+                                loss='square')
+        
+        # from sklearn.linear_model import LinearRegression
+        # self._clf = LinearRegression()
+        
+        # from sklearn.svm import SVR
+        # self._clf = SVR(kernel='rbf', gamma=0.1, C=1.0)
         '''
             此处可以加上网格搜索和交叉验证
         '''

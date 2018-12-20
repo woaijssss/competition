@@ -5,7 +5,7 @@ import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
 if __name__ == '__main__':
 	dp = dataset_preprocess.DataSetPreprocess()
 
-	dataset = '../datas/02-TestingData-poL3/result01.csv'
+	dataset = '../../02-TestingData-poL3/result01.csv'
 	names = ['spindle_load', 'x', 'y', 'z',  'csv_no', 'vibration_1', 'vibration_2', 'vibration_3', 'current']
 	df = dp.loadDataSet(filename=dataset, columns=names)
 
@@ -22,13 +22,13 @@ if __name__ == '__main__':
 		| (df['current'] > 3.3) | (df['current'] < 0.4)
 		]
 
+	lstspindle_load = list(df['spindle_load'])
 	lstz = list(df['z'])
 	# quit()
 
 	# print(len(tmp.index))
 	l = list(tmp.index)
-	print(len(l))
-	# l += [i for i in range(0, 2000) if lstz[i] < 474]
+	l += [i for i in range(7700, 12000) if lstspindle_load[i] < 5.0]
 	# l += [i for i in range(2000, 4000) if lstz[i] < 474.5]
 	# l += [i for i in range(4000, 6000) if lstz[i] < 477]
 	# l += [i for i in range(6000, 8000) if lstz[i] < 478]
@@ -47,11 +47,11 @@ if __name__ == '__main__':
 	# # for index in tmp.index:
 	# df = df.drop(index=list(tmp.index), axis=0)
 
-	df.to_csv('../datas/02-TestingData-poL3/result01_new1.csv', sep=',', index=False, columns=names)
-	quit()
+	# df.to_csv('../../02-TestingData-poL3/result01_new1.csv', sep=',', index=False, columns=names)
+	# quit()
 
 	for name in names:
-		# if name != 'z':
+		# if name != 'spindle_load':
 		# 	continue
 		gp = datasetGraphPlot.GraphPlot()
 		y = list(df[name])
@@ -59,5 +59,7 @@ if __name__ == '__main__':
 		print(df[name].describe())
 
 		x = [i for i in range(0, len(y))]
+		# x = [i for i in range(7800, 9000)]
+		# y = y[7800:9000]
 		gp.plotScatter(x_lst=x, x_label='index', y_lst=y, y_label='current')
 		gp.show(x_label=name, y_label='y')

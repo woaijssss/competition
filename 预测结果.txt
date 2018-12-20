@@ -1,3 +1,11 @@
+上次提交：
+result01:150
+result02:75
+result03:111
+result04:111
+result05:112
+
+第一次简单处理异常值
 1、linear预测：
 result01:128
 result02:53
@@ -20,7 +28,7 @@ result04:83
 result05:84
 
 
-二次处理异常值的预测结果：
+二次处理异常值的预测结果（当前的训练集和测试集）：
 1、linear预测：
 result01:98
 result02:73
@@ -29,11 +37,11 @@ result04:82
 result05:75
 
 2、square预测：
-result01:
-result02:
-result03:
-result04:
-result05:
+result01:93
+result02:74
+result03:81
+result04:82
+result05:75
 
 3、exponential预测：
 result01:
@@ -41,3 +49,25 @@ result02:
 result03:
 result04:
 result05:
+
+调整adaboost和回归树的参数：
+1、回归树深度不限，splitter='best
+    adaboost：学习率0.01，n_estimators为67,loss为square，
+
+预测结果：（丢弃 'z' 列）
+estimator为 67， learning_rate为：0.010000------>训练的准确率:0.999995
+estimator为 67， learning_rate为：0.010000------>预测的准确率:0.707266
+result01:56
+result02:70
+result03:79
+result04:77
+result05:74
+
+预测结果：（不丢弃 'z' 列）
+estimator为 67， learning_rate为：0.010000------>训练的准确率:1.000000
+estimator为 67， learning_rate为：0.010000------>预测的准确率:0.993987
+result01:113
+result02:69
+result03:82
+result04:82
+result05:68

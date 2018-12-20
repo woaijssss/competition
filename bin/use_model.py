@@ -47,7 +47,7 @@ if __name__ == '__main__':
     clf = regressor.load()
     
     for file in range(1, 6):
-        filename = '../datas/02-TestingData-poL3/result0' + str(file) + '_new1.csv'
+        filename = '../../02-TestingData-poL3/result0' + str(file) + '_new1.csv'
         dp = dataset_preprocess.DataSetPreprocess()
         
         X = dp.loadDataSet(filename=filename, columns=names)
@@ -59,7 +59,9 @@ if __name__ == '__main__':
         X = dp.filterInvalidValue(X)
         X = dp.abs(X)                   # 训练的时候去矢量了，测试的时候也要去矢量
         
-        printDescribe(X)
+        # printDescribe(X)
+        
+        # X = X.drop(['z'], axis=1)
         
         from sklearn.preprocessing import StandardScaler
         

@@ -24,13 +24,15 @@ class CNN:
 		模型构建入口
 	'''
 	def modelBuild(self, train_x, train_y, batch_size=10, nb_epoch=10):
+		import tensorflow as tf
+		train_x = tf.convert_to_tensor(train_x)
 		######1. 模型设置、构建
 		self.dataPreprocess()
 		self.inputLayer(x=train_x, y=train_y)
 		# self._model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
 		inputs = Input((self._X.shape[1],))
-		predictions = Dense(1, activation='linear')(x)
+		predictions = Dense(1, activation='linear')(train_x)
 
 		# This creates a model that includes
 		# the Input layer and three Dense layers
@@ -141,8 +143,12 @@ class CNN:
 
 if __name__ == '__main__':
 	names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
-	filename = '../../datas/01-TrainingData-qLua/final.csv'
-	dataset_df = pd.read_csv(filename, sep=',')
+	filename = '../../../01-TrainingData-qLua/二次处理/final_new1.csv'
+	# dataset_df = pd.read_csv(filename, sep=',')
+
+	import src.datasetStatisticAnalysis.dataset_preprocess as dataset_preprocess
+	dp = dataset_preprocess.DataSetPreprocess()
+	dataset_df = dp.loadDataSet(filename=filename, columns=names)
 
 	X = dataset_df[names[0:len(names)-1]]
 	Y = dataset_df[names[len(names)-1:len(names)]]
@@ -153,4 +159,4 @@ if __name__ == '__main__':
 	print(X_train)
 
 	cnn = CNN()
-	# cnn.modelBuild(X_train, Y_train, batch_size=38, nb_epoch=10)
+	cnn.modelBuild(X_train, Y_train, batch_size=38, nb_epoch=10)

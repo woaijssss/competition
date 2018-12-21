@@ -54,5 +54,73 @@ def filterValidData():
     
     quit()
 
+import numpy as np
+import pandas as pd
+
+def calc_grade(true, predict): # take the result of last try as predict,take new predict as true
+    Eri = true - predict
+    if Eri <= 0:
+        # mid = -np.log(0.5) * (Eri/5)
+        mid = np.power(2, Eri/5)
+    else:
+        # mid = np.log(0.5) * (Eri/20)
+        mid = np.power(0.5, Eri/20)
+    # return np.exp(mid) * 100
+    ret = mid * 100
+    return ret
+
+def test():
+    x1 = 79 - (np.log2(0.02)) * 5
+    x2 = 79 - (np.log(0.5 - np.log(0.02))) * 20
+    
+    print(x1)
+    print(x2)
+    
+    # quit()
+    
+    x = [i for i in range(-100, 100)]
+    y = []
+    for x_ in x:
+        if x_ <= 0:
+            y_ = np.power(2, x_/5)
+            # y_ = -np.log(0.5) * (x_/5)
+        else:
+            y_ = np.power(0.5, x_/20)
+            # y_ =  np.log(0.5) * (x_/20)
+        # y_ = -np.log(0.5) * (x_/5)
+        # y_ = np.power(2, x_/5)
+        # y_ = np.power(0.5, x_/20)
+        y.append(y_)
+        
+    import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
+
+    dgp = datasetGraphPlot.GraphPlot()
+    dgp.plotScatter(x_lst=x, y_lst=y, y_label='y')
+    dgp.show()
+    quit()
+
 if __name__ == '__main__':
-    filterValidData()
+    # test()
+    
+    data_loc = './result.csv'
+    df = pd.read_csv(data_loc)
+    column_list = df.columns
+    first_diff = {}
+    for j in range(2, df.shape[0]):
+        first_try = 0
+        second_try = 0
+        third_try = 0
+        for i in column_list:
+            first_try += calc_grade(df[i][j],df[i][0])
+            second_try += calc_grade(df[i][j],df[i][1])
+            # third_try += calc_grade(df[i][j],df[i][2])
+        # first_diff[j] = [first_try/5, second_try/5, third_try/5]
+        first_diff[j] = [first_try/5, second_try/5]
+        print('%d---->:' % j, first_diff[j])
+    final_diff = {}
+    print('---------------------------------------')
+    for j in first_diff.keys():
+        diff_1 = np.square(first_diff[j][0] - 15)
+        diff_2 = np.square(first_diff[j][1] - 2.19)
+        final_diff[j] = np.sqrt(diff_1 + diff_2)
+        print('%d------>:' % j, final_diff[j])

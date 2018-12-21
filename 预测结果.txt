@@ -1,3 +1,10 @@
+第一次提交：
+result01:11
+result02:12
+result03:52
+result04:43
+result05:79
+
 上次提交：
 result01:150
 result02:75
@@ -71,3 +78,21 @@ result02:69
 result03:82
 result04:82
 result05:68
+
+预测结果：（不转换y_predict）
+estimator为 67， learning_rate为：0.010000------>训练的准确率:1.000000
+estimator为 67， learning_rate为：0.010000------>预测的准确率:0.993987
+result01:114
+result02:69
+result03:83
+result04:82
+result05:69
+
+预测结果：（去'z'列，不转换y_predict）
+estimator为 67， learning_rate为：0.010000------>训练的准确率:0.999995
+estimator为 67， learning_rate为：0.010000------>预测的准确率:0.707266
+result01:56
+result02:70
+result03:79
+result04:77
+result05:74

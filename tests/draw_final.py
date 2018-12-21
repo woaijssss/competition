@@ -5,7 +5,7 @@ import src.datasetStatisticAnalysis.datasetGraphPlot as datasetGraphPlot
 if __name__ == '__main__':
     dp = dataset_preprocess.DataSetPreprocess()
     
-    dataset = "../../01-TrainingData-qLua/final.csv"
+    dataset = "../../01-TrainingData-qLua/二次处理/final_new1.csv"
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
     df = dp.loadDataSet(filename=dataset, columns=names)
 
@@ -32,8 +32,8 @@ if __name__ == '__main__':
     # df.to_csv("../../01-TrainingData-qLua/final_new1.csv", sep=',', index=False, columns=names)
 
     for name in names:
-        # if name != 'z':
-        #     continue
+        if name != 'last_time':
+            continue
         gp = datasetGraphPlot.GraphPlot()
         y = list(df[name])
 

@@ -66,9 +66,9 @@ def test(df):
 
 if __name__ == '__main__':
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
-    names_new = ['spindle_load', 'x', 'y', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
+    names_new = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'current', 'last_time']
     # filename = '../datas/01-TrainingData-qLua/final_new.csv'
-    filename = '../../01-TrainingData-qLua/final_new1.csv'
+    filename = '../../01-TrainingData-qLua/二次处理/final_new1.csv'
     dp = dataset_preprocess.DataSetPreprocess()
     dataset_df = dp.loadDataSet(filename=filename, columns=names)
     
@@ -78,8 +78,8 @@ if __name__ == '__main__':
     
     dataset_df = dp.abs(dataset_df)
     
-    # dataset_df = dataset_df.drop(['z'], axis=1)
-    names_new = names
+    dataset_df = dataset_df.drop(['vibration_2', 'vibration_3'], axis=1)
+    # names_new = names
     
     # checkDataSet(dataset_df)
     
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     import numpy as np
     
     # learning_rate = np.linspace(0.01, 0.1, 1)
-    learning_rate = [0.01]
+    learning_rate = [0.02]
     i = 0
     result = [0, 0, 0]
     params = [-1, -1, -1]
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     '''
     
     for rate in learning_rate:
-        for max_depth in range(15, 16):
+        for max_depth in range(7, 8):
             for estimator in range(67, 68):
                 t1 = time.time()
                 i += 1

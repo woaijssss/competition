@@ -46,8 +46,10 @@ if __name__ == '__main__':
     regressor = regressor.Regressor()
     clf = regressor.load()
     
+    result = []
+    
     for file in range(1, 6):
-        filename = '../../02-TestingData-poL3/result0' + str(file) + '_new1.csv'
+        filename = '../../02-TestingData-poL3/一次处理/result0' + str(file) + '_new.csv'
         dp = dataset_preprocess.DataSetPreprocess()
         
         X = dp.loadDataSet(filename=filename, columns=names)
@@ -61,7 +63,7 @@ if __name__ == '__main__':
         
         # printDescribe(X)
         
-        # X = X.drop(['z'], axis=1)
+        X = X.drop(['vibration_2', 'vibration_3'], axis=1)
         
         from sklearn.preprocessing import StandardScaler
         
@@ -69,6 +71,7 @@ if __name__ == '__main__':
         X_train = ss.fit_transform(X)
         
         y_predict = clf.predict(X_train)
+        print('------->', y_predict)
         
         Y = []      # 预测值计算的最终结果
         for i in range(0, len(csv_no_lst)):
@@ -81,7 +84,7 @@ if __name__ == '__main__':
         import numpy as np
         import src.util as util
         from pandas import Series, DataFrame
-        Y = util.traverse(Y)
+        # Y = util.traverse(Y)
         
         # ydf = DataFrame(np.array(Y), columns=names)
         
@@ -90,6 +93,7 @@ if __name__ == '__main__':
         print('====>:', y_predict)
         Y_arr = np.array(Y)
         print('均值----->:', np.mean(Y_arr))
+        result.append(np.mean(Y_arr))
         from scipy import stats
         print('众数----->:', stats.mode(Y_arr)[0][0])
         print('中位数----->:', np.median(Y_arr))
@@ -116,4 +120,6 @@ if __name__ == '__main__':
         dgp = datasetGraphPlot.GraphPlot()
         dgp.plotScatter(x_lst=xlst, y_lst=Y, y_label='y_predict')
         # dgp.plot(xlst, Y, 'y_predict')
-        dgp.show()
+        # dgp.show()
+    
+    print(result)

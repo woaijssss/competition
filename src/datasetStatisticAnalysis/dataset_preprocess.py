@@ -20,7 +20,7 @@ class DataSetPreprocess:
 		if not len(columns):		# 必须匹配特征属性
 			return None
 
-		df = pd.read_csv(filename, sep=sep)
+		df = pd.read_csv(filename, sep=sep, engine='python')
 
 		return df
 	

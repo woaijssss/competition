@@ -48,7 +48,7 @@ class Regressor:
         # self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='random'),
         #                         n_estimators=50, learning_rate=rate,
         #                         loss='square')
-        self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(splitter='best'),
+        self._clf = AdaBoostRegressor(base_estimator=DecisionTreeRegressor(max_depth=max_depth, splitter='best'),
                                 n_estimators=estimator, learning_rate=rate,
                                 loss='square')
         

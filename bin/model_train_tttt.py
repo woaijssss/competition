@@ -70,14 +70,14 @@ if __name__ == '__main__':
     names = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'vibration_2', 'vibration_3', 'current', 'last_time']
     names_new = ['spindle_load', 'x', 'y', 'z', 'vibration_1', 'current', 'last_time']
     # filename = '../datas/01-TrainingData-qLua/final_new.csv'
-    filename = '../../01-TrainingData-qLua/二次处理/final_new1.csv'
+    filename = '../datas/01-TrainingData-qLua/二次处理/final_new1.csv'
     dp = dataset_preprocess.DataSetPreprocess()
     dataset_df = dp.loadDataSet(filename=filename, columns=names)
     
     # test(dataset_df)
     
     dataset_df = dp.filterInvalidValue(dataset_df)
-    
+
     dataset_df = dp.abs(dataset_df)
     
     # dataset_df = dataset_df.drop(['vibration_2', 'vibration_3'], axis=1)
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     Y = dataset_df['last_time']
     
     regressor = regressor.Regressor()
-    regressor.splitDataSet(X, Y, test_size=0.25, random_rate=15)  # 拆分训练集
+    regressor.splitDataSet(X, Y, test_size=0.1, random_rate=15)  # 拆分训练集
     regressor.trainTestStandard()  # 数据标准化
     
     '''
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     '''
     import numpy as np
     
-    learning_rate = np.linspace(0.01, 0.1, 10)
-    # learning_rate = [0.02]
+    # learning_rate = np.linspace(0.01, 0.1, 10)
+    learning_rate = [0.02]
     i = 0
     result = [0, 0, 0]
     params = [-1, -1, -1]
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     
     for max_depth in range(7, 8):
         for rate in learning_rate:
-            for estimator in range(65, 70):
+            for estimator in range(98, 99):
                 t1 = time.time()
                 i += 1
                 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 #---------------------------------------------------------------------------------------
                 seq_result = []
                 for file in range(1, 6):
-                    filename = '../../02-TestingData-poL3/一次处理/result0' + str(file) + '_new.csv'
+                    filename = '../datas/02-TestingData-poL3/一次处理/result0' + str(file) + '_new.csv'
                     dp = dataset_preprocess.DataSetPreprocess()
     
                     X = dp.loadDataSet(filename=filename, columns=names)

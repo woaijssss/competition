@@ -49,7 +49,7 @@ if __name__ == '__main__':
     result = []
     
     for file in range(1, 6):
-        filename = '../../02-TestingData-poL3/一次处理/result0' + str(file) + '_new.csv'
+        filename = '../datas/02-TestingData-poL3/二次处理/result0' + str(file) + '_new1.csv'
         dp = dataset_preprocess.DataSetPreprocess()
         
         X = dp.loadDataSet(filename=filename, columns=names)
@@ -63,13 +63,13 @@ if __name__ == '__main__':
         
         # printDescribe(X)
         
-        X = X.drop(['vibration_2', 'vibration_3'], axis=1)
+        # X = X.drop(['x', 'y', 'current'], axis=1)
         
         from sklearn.preprocessing import StandardScaler
         
         ss = StandardScaler()  # 数据标准化
         X_train = ss.fit_transform(X)
-        
+
         y_predict = clf.predict(X_train)
         print('------->', y_predict)
         
@@ -80,11 +80,14 @@ if __name__ == '__main__':
             # Y.append(y_predict[i])
             
         # Y = [i for i in Y if i >= 0]
-    
+
+        import numpy as np
+        Y = np.abs(Y)
+
         import numpy as np
         import src.util as util
         from pandas import Series, DataFrame
-        # Y = util.traverse(Y)
+        Y = util.traverse(Y)
         
         # ydf = DataFrame(np.array(Y), columns=names)
         

@@ -106,16 +106,16 @@ if __name__ == '__main__':
     df = pd.read_csv(data_loc)
     column_list = df.columns
     first_diff = {}
-    for j in range(2, df.shape[0]):
+    for j in range(3, df.shape[0]):
         first_try = 0
         second_try = 0
         third_try = 0
         for i in column_list:
             first_try += calc_grade(df[i][j],df[i][0])
             second_try += calc_grade(df[i][j],df[i][1])
-            # third_try += calc_grade(df[i][j],df[i][2])
-        # first_diff[j] = [first_try/5, second_try/5, third_try/5]
-        first_diff[j] = [first_try/5, second_try/5]
+            third_try += calc_grade(df[i][j],df[i][2])
+        first_diff[j] = [first_try/5, second_try/5, third_try/5]
+        # first_diff[j] = [first_try/5, second_try/5]
         print('%d---->:' % j, first_diff[j])
     final_diff = {}
     print('---------------------------------------')

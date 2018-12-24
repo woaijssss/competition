@@ -1,16 +1,23 @@
-第一次提交：
+第一次提交：2.1分
 result01:11
 result02:12
 result03:52
 result04:43
 result05:79
 
-上次提交：
+上次提交：15.9分
 result01:150
 result02:75
 result03:111
 result04:111
 result05:112
+
+最新提交：44.1分
+result01:108
+result02:55
+result03:91
+result04:83
+result05:36
 
 第一次简单处理异常值
 1、linear预测：

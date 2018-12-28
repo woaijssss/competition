@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 import matplotlib.pyplot as plt
 
 
@@ -92,6 +93,7 @@ def compute_cost(AL, Y):
     pos = np.power(0.5, pos_Eri/20)
     pos_sum = np.sum(pos)
     cost = (pos_sum + minus_sum)/m
+    cost = 1 - cost
     return cost
 
 
@@ -130,9 +132,9 @@ def L_model_backward(AL, Y, caches):
     Eri = AL-Y
     for i in range(0, AL.shape[1]):
         if Eri[0][i] <= 0:
-            dAL[0][i] = np.power(2, Eri[0][i]/5) * np.log(2) * (1/5)
+            dAL[0][i] = -np.power(2, Eri[0][i]/5) * np.log(2) * (1/5)
         else:
-            dAL[0][i] = np.power(0.5, Eri[0][i]/20) * np.log(2) * (-1/20)
+            dAL[0][i] = -np.power(0.5, Eri[0][i]/20) * np.log(2) * (-1/20)
     current_cache = caches[L-1]
     grads['dA'+str(L-1)], grads['dW'+str(L)], grads['db'+str(L)] = linear_act_backward(dAL, current_cache,
                                                                                        'sigmoid')
@@ -156,7 +158,7 @@ def update_parameters(parameters, grads, learning_rate):
     return parameters
 
 
-def L_layer_model(X, Y, layer_dims, learning_rate = 0.01, num_iterations = 3000):
+def L_layer_model(X, Y, layer_dims, learning_rate = 0.001, num_iterations = 10):
     costs = []
     parameters = initialize_parameters(layer_dims)
 
@@ -165,7 +167,7 @@ def L_layer_model(X, Y, layer_dims, learning_rate = 0.01, num_iterations = 3000)
         cost = compute_cost(AL, Y)
         grads = L_model_backward(AL, Y, caches)
         parameters = update_parameters(parameters, grads, learning_rate)
-        if i % 100 == 0:
+        if i%100 ==0:
             print('cost after iteration %i:%f'%(i, cost))
             costs.append(cost)
 
@@ -178,6 +180,19 @@ def L_layer_model(X, Y, layer_dims, learning_rate = 0.01, num_iterations = 3000)
     return parameters
 
 
+def predict(X, parameters):
+    A = X
+    L = len(parameters) // 2
+
+    for l in range(1, L):
+        A_prev = A
+        A, cache = linear_act_forward(A_prev, parameters['W' + str(l)], parameters['b' + str(l)], 'relu')
+
+    AL, cache = linear_act_forward(A, parameters['W' + str(L)], parameters['b' + str(L)], 'sigmoid')
+    assert (AL.shape == (1, X.shape[1]))
+    return AL
+
+
 if __name__ == '__main__':
     data = pd.read_csv('final.csv')
     Y_data = np.array(data['last_time'])
@@ -185,7 +200,18 @@ if __name__ == '__main__':
     X_data = np.array(data.drop('last_time', axis=1))
     X = X_data.reshape((8, 303159))
     layer_dims = [8, 4, 1]
-    parameters = L_layer_model(X, Y, layer_dims, 0.01, 3000)
+    parameters = L_layer_model(X, Y, layer_dims, 100, 3000)
+    write_file = os.getcwd()+'/parameters.txt'
+    output = open(write_file, 'a')
+    output.write('\n')
+    for key in parameters:
+        output.write(key)
+        output.write(':')
+        output.write(str(list(parameters[key])))
+        output.write('\n')
+    output.close()
+
+
 
 
 
